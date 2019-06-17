@@ -8,14 +8,20 @@ var OAuth2Server = require('oauth2-server'),
 let expressApp = null
 
 function authenticateRequest(req, res, next) {
-
+	var options = {
+		scope : "user",
+		// addAcceptedScopesHeader : true,
+		// addAuthorizedScopesHeader : true
+	}
 	var request = new Request(req);
 	var response = new Response(res);
 
-	return expressApp.oauth.authenticate(request, response)
+	return expressApp.oauth.authenticate(request, response, options)
 		.then(function(token) {
+			console.log(options)
 			next();
 		}).catch(function(err) {
+			console.log(options)
 			res.status(err.code || 500).json(err);
 		});
 }
@@ -42,7 +48,6 @@ function obtainToken(req, res) {
 			res.status(err.code || 500).json(err);
 		});
 }
-
 
 var passExpressApp = function(app){
 	expressApp = app

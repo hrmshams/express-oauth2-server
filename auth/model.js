@@ -12,7 +12,8 @@ var config = {
 	users: [{
 		username: 'pedroetb',
 		password: 'password'
-	}]
+	}],
+	valid_scopes: ['free', 'user']
 };
 
 /*
@@ -68,14 +69,36 @@ var getUser = function(username, password) {
 	return users[0];
 };
 
+function validateScope(user, client, scope) {
+	console.log('requested scope in validate : ' + scope)
+  if (!scope.split(' ').every(s => config.valid_scopes.indexOf(s) >= 0)) {
+    return false;
+  }
+  return scope;
+}
+
+function verifyScope(token, scope) {
+	if (!token.scope) {
+	  return false;
+	}
+	let requestedScopes = scope.split(' ');
+	console.log("token : " + JSON.stringify(token))
+	let authorizedScopes = token.scope.split(' ');
+	var result = requestedScopes.every(s => authorizedScopes.indexOf(s) >= 0)
+
+	console.log('requested scope : ' + scope + " - and the result : " + result)
+	return result;
+}
+
 /**
  * Export model definition object.
  */
 
 module.exports = {
-	getAccessToken: getAccessToken,
-	getClient: getClient,
-	saveToken: saveToken,
-	getUser: getUser,
-	revokeToken: revokeToken
+	getAccessToken,
+	getClient,
+	saveToken,
+	getUser,
+	validateScope,
+	verifyScope
 };
