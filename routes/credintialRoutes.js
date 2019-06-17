@@ -28,12 +28,27 @@ credintialRoutes.get('/user', authenticateRequest, (req, res)=>{
     res.send('/user route allowed')
 })
 
+credintialRoutes.all('/token', obtainToken)
+function obtainToken(req, res) {
+	var request = new Request(req);
+	var response = new Response(res);
+
+	return expressApp.oauth.token(request, response)
+		.then(function(token) {
+
+			res.json(token);
+		}).catch(function(err) {
+
+			res.status(err.code || 500).json(err);
+		});
+}
+
+
 var passExpressApp = function(app){
 	expressApp = app
 }
 
-module.exports = (app)=>{
-    
+module.exports = ()=>{
     return {
 		routes : credintialRoutes,
 		passExpressApp : passExpressApp
