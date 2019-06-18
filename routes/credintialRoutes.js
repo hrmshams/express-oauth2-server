@@ -10,8 +10,6 @@ let expressApp = null
 function authenticateRequest(req, res, next) {
 	var options = {
 		scope : "user",
-		// addAcceptedScopesHeader : true,
-		// addAuthorizedScopesHeader : true
 	}
 	var request = new Request(req);
 	var response = new Response(res);
