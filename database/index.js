@@ -14,7 +14,8 @@ function initConnection(){
 
 function query(queryStr, callback){
     initConnection()
-    connection.query(queryStr, function(err, result, fields){
+    con.connect()
+    con.query(queryStr, function(err, result, fields){
         if (err){
             console.log('error happened : '+ JSON.stringify(err))
         } else {
@@ -32,5 +33,6 @@ function migrate(){
 
 module.exports = {
     query,
-    migrate
+    migrate,
+    initConnection
 }
