@@ -24,7 +24,6 @@ function saveAccessToken(accessToken, userID, callback) {
 
   //execute the query to get the user
   databaseConnection.query(getUserQuery, (dataResponseObject) => {
-
       //pass in the error which may be null and pass the results object which we get the user from if it is not null
       callback(dataResponseObject.error)
   })

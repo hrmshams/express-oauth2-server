@@ -23,8 +23,25 @@ function initDb(){
     })
 }
 
-function initTables(){
-    
+function initTables(queryFunction){
+    const usersTableQuery = 
+        "CREATE TABLE users ("+
+        "id int NOT NULL AUTO_INCREMENT,"+
+        "username varchar(255) NOT NULL,"+
+        "password varchar(255) NOT NULL,"+
+        "primary key (id));"
+
+    const accessTokensTableQuery =
+        "CREATE TABLE access_tokens (" +
+        "access_token varchar(255)," + 
+        "user_id varchar(255) NOT NULL);"
+
+    const usersTableInitDataQuery = 
+        "INSERT INTO users (username, password) VALUES ('root', SHA('123'))"
+
+    queryFunction(usersTableQuery, undefined, true)
+    queryFunction(accessTokensTableQuery, undefined, true)
+    queryFunction(usersTableInitDataQuery)
 }
 
 module.exports = {

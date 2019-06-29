@@ -9,7 +9,7 @@ const userDbHelper = require('./database/userDbHelper')(database)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
     
-database.migrate()
+// database.migrate()
 var auth = require('./auth/index')(app, {accessTokenDbHelper, userDbHelper})
 var routes = require('./routes/index.js')(app, auth)
 routes.configRoutes()

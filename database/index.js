@@ -13,7 +13,8 @@ function initConnection(){
     });
 }
 
-function query(queryStr, callback){
+function query(queryStr, callback, notEndConnection){
+    console.log('access')
     initConnection()
     con.connect()
     con.query(queryStr, function(err, result, fields){
@@ -22,14 +23,17 @@ function query(queryStr, callback){
         } else {
             console.log('successfully query executed')            
         }
-        con.end()
-        callback(err, result)
+        if (!notEndConnection)
+            con.end()
+    
+        if (callback !== undefined)
+            callback(err, result)
     })
 }
 
 function migrate(){
-    migrations.initDb()
-    migrations.initTables()
+    // migrations.initDb()
+    migrations.initTables(this.query)
 }
 
 module.exports = {
