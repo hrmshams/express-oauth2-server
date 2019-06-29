@@ -8,26 +8,49 @@ var config = {
 		],
 		redirectUris: []
 	}],
-	tokens: [],
-	users: [{
-		username: 'pedroetb',
-		password: 'password'
-	}],
+	// tokens: [],
+	// users: [{
+	// 	username: 'pedroetb',
+	// 	password: 'password'
+	// }],
 	valid_scopes: ['free', 'user']
+};
+
+let userDBHelper
+let accessTokensDBHelper
+module.exports = (injectedDBHelpers) => {
+	userDBHelper = injectedDBHelpers.accessTokenDbHelper
+	accessTokensDBHelper = injectedDBHelpers.userDBHelper
+	
+	return (
+		getAccessToken,
+		getClient,
+		saveToken,
+		getUser,
+		validateScope,
+		verifyScope
+	)
 };
 
 /*
  * Methods used by all grant types.
  */
 
-var getAccessToken = function(token) {
+var getAccessToken = function(bearerToken, callback) {
 
-	var tokens = config.tokens.filter(function(savedToken) {
+	//try and get the userID from the db using the bearerToken
+	accessTokensDBHelper.getUserIDFromBearerToken(bearerToken, (userID) => {
+		//create the token using the retrieved userID
+		const accessToken = {
+		user: {
+			id: userID,
+		},
+		expires: null
+		}
 
-		return savedToken.accessToken === token;
-	});
-
-	return tokens[0];
+		//set the error to true if userID is null, and pass in the token if there is a userID else pass null
+		callback(userID == null ? true : false, userID == null ? null : accessToken)
+	})
 };
 
 var getClient = function(clientId, clientSecret) {
@@ -40,33 +63,23 @@ var getClient = function(clientId, clientSecret) {
 	return clients[0];
 };
 
-var saveToken = function(token, client, user) {
+var saveToken = function(token, client, user, callback) {
 
-	token.client = {
-		id: client.clientId
-	};
-
-	token.user = {
-		id: user.username || user.clientId
-	};
-
-	config.tokens.push(token);
-
-	return token;
+	console.log('saveAccessToken() called and accessToken is: ', accessToken,' and client is: ',client, ' and user is: ', user)
+  
+	//save the accessToken along with the user.id
+	accessTokensDBHelper.saveAccessToken(token, user.id, callback)	
 };
 
 /*
  * Method used only by password grant type.
  */
 
-var getUser = function(username, password) {
+var getUser = function(username, password, callback) {
+	console.log('getUser() called and username is: ', username, ' and password is: ', password);
 
-	var users = config.users.filter(function(user) {
-
-		return user.username === username && user.password === password;
-	});
-
-	return users[0];
+	//try and get the user using the user's credentials
+	userDBHelper.getUserFromCrentials(username, password, callback)
 };
 
 function validateScope(user, client, scope) {
@@ -82,7 +95,6 @@ function verifyScope(token, scope) {
 	  return false;
 	}
 	let requestedScopes = scope.split(' ');
-	console.log("token : " + JSON.stringify(token))
 	let authorizedScopes = token.scope.split(' ');
 	var result = requestedScopes.every(s => authorizedScopes.indexOf(s) >= 0)
 
@@ -94,11 +106,3 @@ function verifyScope(token, scope) {
  * Export model definition object.
  */
 
-module.exports = {
-	getAccessToken,
-	getClient,
-	saveToken,
-	getUser,
-	validateScope,
-	verifyScope
-};

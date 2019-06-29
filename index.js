@@ -6,11 +6,11 @@ var app = require('express')(),
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
     
-var auth = require('./auth/index')(app)
+database.migrate()
+var auth = require('./auth/index')(app, database.DbHelpers)
 var routes = require('./routes/index.js')(app, auth)
 routes.configRoutes()
 
-database.migrate()
 
 app.listen(config.port, ()=>{
     console.log(`server is running on port ${config.port}`)

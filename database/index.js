@@ -3,6 +3,9 @@ var migrations = require('./migrations')
 var dbconfig = require('./../config/index').database
 
 let con = null
+let accessTokenDbHelper = null
+let userDbHelper = null
+
 function initConnection(){
     con = mysql.createConnection({
         host: dbconfig.host,
@@ -10,6 +13,9 @@ function initConnection(){
         password: dbconfig.password,
         database: dbconfig.database
     });
+
+    accessTokenDbHelper = require('./accessTokenDbHelper')(con)
+    userDbHelper = require('./userDbHelper')(con)
 }
 
 function query(queryStr, callback){
@@ -34,5 +40,9 @@ function migrate(){
 module.exports = {
     query,
     migrate,
-    initConnection
+    initConnection,
+    DbHelpers : {
+        accessTokenDbHelper,
+        userDbHelper,
+    }
 }
