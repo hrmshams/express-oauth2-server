@@ -1,13 +1,13 @@
-let mySqlConnection
+let databaseConnection
 
-module.exports = injectedMySqlConnection => {
+module.exports = injectedDatabaseConnection => {
 
-  mySqlConnection = injectedMySqlConnection
+  databaseConnection = injectedDatabaseConnection
 
   return {
-   saveAccessToken: saveAccessToken,
-   getUserIDFromBearerToken: getUserIDFromBearerToken
- }
+    saveAccessToken: saveAccessToken,
+    getUserIDFromBearerToken: getUserIDFromBearerToken
+  }
 }
 
 /**
@@ -23,7 +23,7 @@ function saveAccessToken(accessToken, userID, callback) {
   const getUserQuery =  `INSERT INTO access_tokens (access_token, user_id) VALUES ("${accessToken}", ${userID}) ON DUPLICATE KEY UPDATE access_token = "${accessToken}";`
 
   //execute the query to get the user
-  mySqlConnection.query(getUserQuery, (dataResponseObject) => {
+  databaseConnection.query(getUserQuery, (dataResponseObject) => {
 
       //pass in the error which may be null and pass the results object which we get the user from if it is not null
       callback(dataResponseObject.error)
@@ -43,7 +43,7 @@ function getUserIDFromBearerToken(bearerToken, callback){
   const getUserIDQuery = `SELECT * FROM access_tokens WHERE access_token = '${bearerToken}';`
 
   //execute the query to get the userID
-  mySqlConnection.query(getUserIDQuery, (dataResponseObject) => {
+  databaseConnection.query(getUserIDQuery, (dataResponseObject) => {
 
       //get the userID from the results if its available else assign null
       const userID = dataResponseObject.results != null && dataResponseObject.results.length == 1 ?

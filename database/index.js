@@ -3,8 +3,6 @@ var migrations = require('./migrations')
 var dbconfig = require('./../config/index').database
 
 let con = null
-let accessTokenDbHelper = null
-let userDbHelper = null
 
 function initConnection(){
     con = mysql.createConnection({
@@ -13,9 +11,6 @@ function initConnection(){
         password: dbconfig.password,
         database: dbconfig.database
     });
-
-    accessTokenDbHelper = require('./accessTokenDbHelper')(con)
-    userDbHelper = require('./userDbHelper')(con)
 }
 
 function query(queryStr, callback){
@@ -28,7 +23,7 @@ function query(queryStr, callback){
             console.log('successfully query executed')            
         }
         con.end()
-        callback(err, results)
+        callback(err, result)
     })
 }
 
@@ -41,8 +36,4 @@ module.exports = {
     query,
     migrate,
     initConnection,
-    DbHelpers : {
-        accessTokenDbHelper,
-        userDbHelper,
-    }
 }
