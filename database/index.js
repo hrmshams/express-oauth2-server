@@ -14,7 +14,6 @@ function initConnection(){
 }
 
 function query(queryStr, callback, notEndConnection){
-    console.log('access')
     initConnection()
     con.connect()
     con.query(queryStr, function(err, result, fields){

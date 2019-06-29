@@ -19,17 +19,17 @@ var config = {
 let userDBHelper
 let accessTokensDBHelper
 module.exports = (injectedDBHelpers) => {
-	userDBHelper = injectedDBHelpers.accessTokenDbHelper
-	accessTokensDBHelper = injectedDBHelpers.userDBHelper
+	userDBHelper = injectedDBHelpers.userDbHelper
+	accessTokensDBHelper = injectedDBHelpers.accessTokenDbHelper
 	
-	return (
+	return ({
 		getAccessToken,
 		getClient,
 		saveToken,
 		getUser,
 		validateScope,
 		verifyScope
-	)
+	})
 };
 
 /*
@@ -55,6 +55,7 @@ var getAccessToken = function(bearerToken, callback) {
 
 var getClient = function(clientId, clientSecret) {
 
+	console.log('getClient() called')
 	var clients = config.clients.filter(function(client) {
 
 		return client.clientId === clientId && client.clientSecret === clientSecret;
@@ -63,12 +64,24 @@ var getClient = function(clientId, clientSecret) {
 	return clients[0];
 };
 
-var saveToken = function(token, client, user, callback) {
+var saveToken = function(token, client, user) {
 
-	console.log('saveAccessToken() called and accessToken is: ', accessToken,' and client is: ',client, ' and user is: ', user)
+	console.log('saveAccessToken() called and accessToken is: ', token,' and client is: ',client, ' and user is: ', user)
   
 	//save the accessToken along with the user.id
-	accessTokensDBHelper.saveAccessToken(token, user.id, callback)	
+	accessTokensDBHelper.saveAccessToken(token, client.id, user.id)
+
+	return {
+		accessToken : token.accessToken,
+		accessTokenExpiresAt : token.accessTokenExpiresAt,
+		client : {
+			id : client.clientId
+		},
+		user : {
+			id : user.id,
+		},
+		scope : token.scope
+	}
 };
 
 /*
@@ -76,14 +89,14 @@ var saveToken = function(token, client, user, callback) {
  */
 
 var getUser = function(username, password, callback) {
-	console.log('getUser() called and username is: ', username, ' and password is: ', password);
+	console.log('getUser() called and username is :'+ username + ' and password is :'+ password);
 
 	//try and get the user using the user's credentials
 	userDBHelper.getUserFromCrentials(username, password, callback)
 };
 
 function validateScope(user, client, scope) {
-	console.log('requested scope in validate : ' + scope)
+	console.log('validateScope() called and requested scope in validate : ' + scope)
   if (!scope.split(' ').every(s => config.valid_scopes.indexOf(s) >= 0)) {
     return false;
   }
@@ -91,6 +104,7 @@ function validateScope(user, client, scope) {
 }
 
 function verifyScope(token, scope) {
+	console.log('verifyScope() called')
 	if (!token.scope) {
 	  return false;
 	}

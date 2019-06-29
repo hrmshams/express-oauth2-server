@@ -18,14 +18,17 @@ module.exports = injectedDatabaseConnection => {
  * @param userID
  * @param callback - takes either an error or null if we successfully saved the accessToken
  */
-function saveAccessToken(accessToken, userID, callback) {
+function saveAccessToken(token, clientID, userID, callback) {
 
-  const getUserQuery =  `INSERT INTO access_tokens (access_token, user_id) VALUES ("${accessToken}", ${userID}) ON DUPLICATE KEY UPDATE access_token = "${accessToken}";`
+  // we just save two values of token! 
+  const getUserQuery =  `INSERT INTO access_tokens (user_id, access_token, access_token_expire, client_id, scope) VALUES ("${userID}", "${token.accessToken}", ${JSON.stringify(token.accessTokenExpiresAt)}, "${token.clientId}", "${token.scope}")` +
+  ` ON DUPLICATE KEY UPDATE access_token="${token.accessToken}", access_token_expire=${JSON.stringify(token.accessTokenExpiresAt)}, client_id="${clientID}", scope="${token.scope}";`
 
   //execute the query to get the user
-  databaseConnection.query(getUserQuery, (dataResponseObject) => {
+  databaseConnection.query(getUserQuery, (err, result) => {
       //pass in the error which may be null and pass the results object which we get the user from if it is not null
-      callback(dataResponseObject.error)
+      if (callback)
+        callback(err, result)
   })
 }
 
@@ -42,7 +45,7 @@ function getUserIDFromBearerToken(bearerToken, callback){
   const getUserIDQuery = `SELECT * FROM access_tokens WHERE access_token = '${bearerToken}';`
 
   //execute the query to get the userID
-  databaseConnection.query(getUserIDQuery, (dataResponseObject) => {
+  databaseConnection.query(getUserIDQuery, (err, result) => {
 
       //get the userID from the results if its available else assign null
       const userID = dataResponseObject.results != null && dataResponseObject.results.length == 1 ?

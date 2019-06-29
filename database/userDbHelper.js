@@ -1,8 +1,8 @@
-let mySqlConnection;
+let databaseConnection;
 
 module.exports = injectedMySqlConnection => {
 
-  mySqlConnection = injectedMySqlConnection
+  databaseConnection = injectedMySqlConnection
 
   return {
 
@@ -27,7 +27,7 @@ function registerUserInDB(username, password, registrationCallback){
   const registerUserQuery = `INSERT INTO users (username, password) VALUES ('${username}', SHA('${password}'))`
 
   //execute the query to register the user
-  mySqlConnection.query(registerUserQuery, registrationCallback)
+  databaseConnection.query(registerUserQuery, registrationCallback)
 }
 
 /**
@@ -48,10 +48,9 @@ function getUserFromCrentials(username, password, callback) {
   console.log('getUserFromCrentials query is: ', getUserQuery);
 
   //execute the query to get the user
-  mySqlConnection.query(getUserQuery, (dataResponseObject) => {
-
+  databaseConnection.query(getUserQuery, (err, result) => {
       //pass in the error which may be null and pass the results object which we get the user from if it is not null
-      callback(false, dataResponseObject.results !== null && dataResponseObject.results.length  === 1 ?  dataResponseObject.results[0] : null)
+      callback(false, result !== null && result.length  === 1 ?  result[0] : null)
   })
 }
 
@@ -83,5 +82,5 @@ function doesUserExist(username, callback) {
   }
 
   //execute the query to check if the user exists
-  mySqlConnection.query(doesUserExistQuery, sqlCallback)
+  databaseConnection.query(doesUserExistQuery, sqlCallback)
 }

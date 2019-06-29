@@ -33,8 +33,11 @@ function initTables(queryFunction){
 
     const accessTokensTableQuery =
         "CREATE TABLE access_tokens (" +
-        "access_token varchar(255)," + 
-        "user_id varchar(255) NOT NULL);"
+        "user_id int NOT NULL UNIQUE," +
+        "access_token varchar(255) NOT NULL," +
+        "access_token_expire varchar(255) NOT NULL," +
+        "client_id varchar(255) NOT NULL," +
+        "scope varchar(255));"
 
     const usersTableInitDataQuery = 
         "INSERT INTO users (username, password) VALUES ('root', SHA('123'))"
