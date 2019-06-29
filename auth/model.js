@@ -39,17 +39,9 @@ module.exports = (injectedDBHelpers) => {
 var getAccessToken = function(bearerToken, callback) {
 
 	//try and get the userID from the db using the bearerToken
-	accessTokensDBHelper.getUserIDFromBearerToken(bearerToken, (userID) => {
-		//create the token using the retrieved userID
-		const accessToken = {
-		user: {
-			id: userID,
-		},
-		expires: null
-		}
-
+	accessTokensDBHelper.getUserIDFromBearerToken(bearerToken, (token) => {
 		//set the error to true if userID is null, and pass in the token if there is a userID else pass null
-		callback(userID == null ? true : false, userID == null ? null : accessToken)
+		callback(token == null ? true : false, token == null ? null : token)
 	})
 };
 

@@ -47,10 +47,27 @@ function getUserIDFromBearerToken(bearerToken, callback){
   //execute the query to get the userID
   databaseConnection.query(getUserIDQuery, (err, result) => {
 
-      //get the userID from the results if its available else assign null
-      const userID = dataResponseObject.results != null && dataResponseObject.results.length == 1 ?
-                                                              dataResponseObject.results[0].user_id : null
+    console.log('error : ', err)
 
-      callback(userID)
+      //get the userID from the results if its available else assign null
+      let tokenObj = null
+      if (result && result.length){
+
+        const token = result[0]
+        // console.log('token in get token : ' + JSON.stringify(token))
+        console.log(token.access_token_expire)
+        tokenObj = {
+          accessToken: token.access_token,
+          accessTokenExpiresAt: new Date(token.access_token_expire),
+          scope: token.scope,
+          client: {
+            id: token.client_id
+          },
+          user: {
+            id : token.user_id
+          }
+        }
+      }
+      callback(tokenObj)
   })
 }
