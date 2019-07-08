@@ -1,3 +1,6 @@
+var sqlWrapper = require('./sqlWrapper')
+var AccessTokenModel = require('./models/accessTokens')
+
 let databaseConnection
 
 module.exports = injectedDatabaseConnection => {
@@ -20,9 +23,20 @@ module.exports = injectedDatabaseConnection => {
  */
 function saveAccessToken(token, clientID, userID, callback) {
 
+  let accessTokenModel = new AccessTokenModel()
+  accessTokenModel.setValues([
+    userID, 
+    token.accessToken, 
+    token.accessTokenExpiresAt, 
+    token.clientId, 
+    token.scope
+  ])
+  const getUserQuery = sqlWrapper.insertQueryMaker(accessTokenModel, true)
+  console.log ('query : \n' + getUserQuery)  
   // we just save two values of token! 
-  const getUserQuery =  `INSERT INTO access_tokens (user_id, access_token, access_token_expire, client_id, scope) VALUES ("${userID}", "${token.accessToken}", ${JSON.stringify(token.accessTokenExpiresAt)}, "${token.clientId}", "${token.scope}")` +
-  ` ON DUPLICATE KEY UPDATE access_token="${token.accessToken}", access_token_expire=${JSON.stringify(token.accessTokenExpiresAt)}, client_id="${clientID}", scope="${token.scope}";`
+  // const getUserQuery =  `INSERT INTO access_tokens (user_id, access_token, access_token_expire, client_id, scope) VALUES ("${userID}", "${token.accessToken}", ${JSON.stringify(token.accessTokenExpiresAt)}, "${token.clientId}", "${token.scope}")` +
+  // ` ON DUPLICATE KEY UPDATE access_token="${token.accessToken}", access_token_expire=${JSON.stringify(token.accessTokenExpiresAt)}, client_id="${clientID}", scope="${token.scope}";`
+
 
   //execute the query to get the user
   databaseConnection.query(getUserQuery, (err, result) => {
@@ -42,7 +56,8 @@ function saveAccessToken(token, clientID, userID, callback) {
 function getUserIDFromBearerToken(bearerToken, callback){
 
   //create query to get the userID from the row which has the bearerToken
-  const getUserIDQuery = `SELECT * FROM access_tokens WHERE access_token = '${bearerToken}';`
+  const getUserIDQuery = sqlWrapper.selectQueryMaker("*", "access_token", `access_token='${bearerToken}'`)
+  // const getUserIDQuery = `SELECT * FROM access_tokens WHERE access_token = '${bearerToken}';`
 
   //execute the query to get the userID
   databaseConnection.query(getUserIDQuery, (err, result) => {

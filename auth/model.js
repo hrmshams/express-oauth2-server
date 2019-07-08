@@ -8,11 +8,6 @@ var config = {
 		],
 		redirectUris: []
 	}],
-	// tokens: [],
-	// users: [{
-	// 	username: 'pedroetb',
-	// 	password: 'password'
-	// }],
 	valid_scopes: ['free', 'user']
 };
 
@@ -89,17 +84,23 @@ var getUser = function(username, password, callback) {
 
 function validateScope(user, client, scope) {
 	console.log('validateScope() called and requested scope in validate : ' + scope)
-  if (!scope.split(' ').every(s => config.valid_scopes.indexOf(s) >= 0)) {
-    return false;
-  }
-  return scope;
+	if (!scope){
+		return false
+	}
+
+
+	if (!scope.split(' ').every(s => config.valid_scopes.indexOf(s) >= 0)) {
+		return false;
+	}
+	return scope;
 }
 
 function verifyScope(token, scope) {
 	console.log('verifyScope() called')
-	if (!token.scope) {
+	if (!token.scope || !scope) {
 	  return false;
 	}
+
 	let requestedScopes = scope.split(' ');
 	let authorizedScopes = token.scope.split(' ');
 	var result = requestedScopes.every(s => authorizedScopes.indexOf(s) >= 0)

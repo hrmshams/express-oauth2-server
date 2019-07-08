@@ -22,6 +22,7 @@ class Model {
 
         this.values = null
         this.key = null
+        this.keyIndex = -1
     }
 
     // sets
@@ -34,18 +35,18 @@ class Model {
     getData(withoutKey){
         let tableName = this.tableName
         let fields = this.getKeys(this.model, withoutKey)
-        let values = this.getValue(withoutKey)
+        let values = this.getValues(withoutKey)
         return {tableName, fields, values}
     }
 
-    getValue(withoutKey){
+    getValues(withoutKey){
         if (!withoutKey){
             return this.values
         }
         
         // cloning the object
-        let coppiedVals = JSU.copyObject(this.values)
-        JSU.removeFromArray(coppiedVals, this.key)
+        let coppiedVals = JSU.copyArray(this.values)
+        coppiedVals.splice(this.keyIndex, 1)
 
         return coppiedVals
     }
