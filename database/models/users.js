@@ -1,10 +1,10 @@
 var TableModel = require('./../model')
 
-class users extends TableModel {
-    constructor(tableName){
-        super(tableName)
+class Users extends TableModel {
+    constructor(){
+        super("users")
 
-        this.setModel()
+        this.model = this.setModel()
     }
 
     setModel(){
@@ -16,4 +16,4 @@ class users extends TableModel {
     }
 }
 
-module.exports = users
+module.exports = Users
